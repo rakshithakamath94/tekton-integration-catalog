@@ -124,7 +124,7 @@ spec:
       type: string
       description: |
         Additional port mappings for the Kind cluster. Value should be a JSON array of objects with containerPort, hostPort, and protocol properties.
-        Example: '[{"containerPort": 30012, "hostPort": 8180, "protocol": "TCP"}, {"containerPort": 30013, "hostPort": 8280, "protocol": "TCP"}]'
+        Example: '[{\"containerPort\":30012,\"hostPort\":8180,\"protocol\":\"TCP\"}, {\"containerPort\":30013,\"hostPort\":8280,\"protocol\":\"TCP\"}]'
       default: ""
   results:
     - name: cluster-access-secret
