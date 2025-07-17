@@ -217,7 +217,9 @@ spec:
           kubectl apply -f https://raw.githubusercontent.com/redhat-appstudio/infra-deployments/main/components/konflux-rbac/base/appstudio-pipelines-runner.yaml
 
           # Apply kyverno policy for reducing CPU/Memory requests for E2E PLR pods
-          kubectl apply -f https://raw.githubusercontent.com/redhat-appstudio/infra-deployments/main/components/policies/development/taskruns-cluster-policy.yaml
+          curl -s https://raw.githubusercontent.com/redhat-appstudio/infra-deployments/main/components/policies/development/taskruns-cluster-policy.yaml \
+            | yq 'del(.spec.rules[0].skipBackgroundRequests)' \
+            | kubectl apply -f -
 
           kubectl get po -A
         } 2>&1 | tee -a $LOG_FILENAME
