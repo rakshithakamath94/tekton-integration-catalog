@@ -192,6 +192,17 @@ spec:
         set -euo pipefail
         
         {
+          server=$(grep server $KUBECONFIG | awk '{print $2}')
+          echo "[INFO] kubernetes cluster is hosted on: $server"
+
+          server_ip="${${server##*/}%:*}"
+
+          sed -i "s|localhost|${server_ip}|g" dependencies/dex/config.yaml
+          sed -i "s|localhost|${server_ip}|g" dependencies/pipelines-as-code/custom-console-patch.yaml
+          sed -i "s|localhost|${server_ip}|g" konflux-ci/ui/core/proxy/proxy.yaml
+
+          sed -i "s|http://pipelines-as-code-controller.*:|http://${server_ip}:|g" **/*.yaml
+
           kubectl cluster-info
 
           echo "[INFO] Installing Konflux CI dependencies"
@@ -200,6 +211,12 @@ spec:
 
           echo "[INFO] Installing Konflux CI..."
           ./deploy-konflux.sh
+
+          # Apply pipelines-runner cluster role
+          kubectl apply -f https://raw.githubusercontent.com/redhat-appstudio/infra-deployments/main/components/konflux-rbac/base/appstudio-pipelines-runner.yaml
+
+          # Apply kyverno policy for reducing CPU/Memory requests for E2E PLR pods
+          kubectl apply -f https://raw.githubusercontent.com/redhat-appstudio/infra-deployments/main/components/policies/development/taskruns-cluster-policy.yaml
 
           kubectl get po -A
         } 2>&1 | tee -a $LOG_FILENAME
