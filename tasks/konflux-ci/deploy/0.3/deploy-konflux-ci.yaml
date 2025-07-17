@@ -216,11 +216,6 @@ spec:
           # Apply pipelines-runner cluster role
           kubectl apply -f https://raw.githubusercontent.com/redhat-appstudio/infra-deployments/main/components/konflux-rbac/base/appstudio-pipelines-runner.yaml
 
-          # Apply kyverno policy for reducing CPU/Memory requests for E2E PLR pods
-          curl -s https://raw.githubusercontent.com/redhat-appstudio/infra-deployments/main/components/policies/development/taskruns-cluster-policy.yaml \
-            | yq 'del(.spec.rules[0].skipBackgroundRequests)' \
-            | kubectl apply -f -
-
           kubectl get po -A
         } 2>&1 | tee -a $LOG_FILENAME
     - name: deploy-image-controller-and-smee
@@ -276,8 +271,11 @@ spec:
         set -euo pipefail
 
         {
-        echo "[INFO] Applying Kyverno to reduce resources for testing"
-        kubectl apply -f ./dependencies/kyverno/policy/e2e-reduce-resources.yaml
+        # Delete existing kyverno policies and apply a policy for reducing CPU/Memory requests for E2E PLR pods
+        kubectl delete clusterpolicy --all
+        curl -s https://raw.githubusercontent.com/redhat-appstudio/infra-deployments/main/components/policies/development/taskruns-cluster-policy.yaml \
+          | yq 'del(.spec.rules[0].skipBackgroundRequests)' \
+          | kubectl apply -f -
 
         echo "[INFO] Creating Test Resources..."
         ./deploy-test-resources.sh
