@@ -204,7 +204,7 @@ spec:
         cmd+="--arch $(params.arch) "
         cmd+="--cpus $(params.cpus) "
         cmd+="--memory $(params.memory) "
-        if [[ $(params.extra-port-mappings) != "" ]]; then cmd+="--extra-port-mappings $(params.extra-port-mappings) "; fi
+        if [[ "$(params.extra-port-mappings)" != "" ]]; then cmd+="--extra-port-mappings $(params.extra-port-mappings) "; fi
         if [[ $(params.nested-virt) == "true" ]]; then cmd+="--nested-virt "; fi
         if [[ $(params.version) != "" ]]; then cmd+="--version $(params.version) "; fi
         if [[ $(params.spot) == "true" ]]; then
